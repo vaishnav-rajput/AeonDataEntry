@@ -274,7 +274,7 @@ const EntryForm = () => {
 
             </div>
             {
-                entries ? entries.map((entry,index) => (
+                !loading ? entries.map((entry,index) => (
                     <div key={index} className='flex flex-row  text-richblack-5 rounded-md border border-white'>
                         <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
                             
