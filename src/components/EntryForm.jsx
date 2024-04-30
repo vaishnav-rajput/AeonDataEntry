@@ -10,7 +10,7 @@ import { formatDate } from '../services/formatDate'
 
 const EntryForm = () => {
 
-    const {register, handleSubmit, setValue, getValues, formState: {errors}} = useForm()
+    const {register, handleSubmit, setValue, getValues,reset, formState: {errors}} = useForm()
     const dispatch = useDispatch()
     const {serial, entry, editEntry, newEntryLoading} = useSelector((state) => state.entry)
     const [loading, setLoading] = useState(false)
@@ -58,6 +58,8 @@ const EntryForm = () => {
         const currentValues = getValues()
         console.log("current Vals", currentValues)
         
+            setSerial(prev => prev + 1)
+            console.log("serial no", serial)
 
          const results = await addNewEntry({
             serial: serial,
@@ -67,10 +69,12 @@ const EntryForm = () => {
             issue: currentValues.issue,
             assignedEngineer: currentValues.assignedEngineer,
             status: currentValues.status
+
          })
         //  ,token})
          setLoading(false)
          setNewEntry(true)
+         reset()
         // const formData = new FormData()
         // formData.append("client", currentValues.client)
         // formData.append("location", currentValues.location)
@@ -99,6 +103,7 @@ const EntryForm = () => {
                 placeholder='enter client name'
                 {...register("client", {required: true})}
                 className="form-style w-full"
+                autoComplete='off'
             />
             {
                 errors.client && (
@@ -114,6 +119,7 @@ const EntryForm = () => {
                 placeholder='enter location'
                 {...register("location")}
                 className="form-style w-full"
+                autoComplete='off'
             />
             {
                 errors.location && (
@@ -129,6 +135,7 @@ const EntryForm = () => {
                 placeholder="enter user's name"
                 {...register("userName")}
                 className="form-style w-full"
+                autoComplete='off'
             />
             {
                 errors.userName && (
@@ -144,6 +151,7 @@ const EntryForm = () => {
                 placeholder='enter issue'
                 {...register("issue", {required: true})}
                 className="form-style w-full"
+                autoComplete='off'
             />
             {
                 errors.issue && (
@@ -158,7 +166,8 @@ const EntryForm = () => {
                 id='assignedEngineer'
                 placeholder='enter assigned Engineer'
                 {...register("assignedEngineer", {required: true})}
-                className="form-style w-full"
+                className="form-style w-full "
+                autoComplete='off'  
             />
             {
                 errors.courseTitle && (
@@ -166,9 +175,9 @@ const EntryForm = () => {
                 )
             }
         </div>
-        {/* type */}
+        {/* status */}
         <div  className="flex flex-col space-y-2">
-            <label className="text-sm text-richblack-5 " htmlFor='status'>Type <sup>*</sup></label>
+            <label className="text-sm text-richblack-5 " htmlFor='status'>Status <sup>*</sup></label>
             
             <select
             className='text-white form-style'
@@ -176,9 +185,9 @@ const EntryForm = () => {
             defaultValue=""
             {...register("status")}
             >
-                <option className=' form-style' value="" disabled>Choose a type</option>
-                <option className='form-style' >remote</option>
-                <option className='form-style'>on-site</option>                
+                <option className=' form-style' value="" disabled>Choose a Status</option>
+                <option className='form-style' >pending</option>
+                <option className='form-style'>done</option>                
             </select>
         </div>
         
@@ -191,7 +200,8 @@ const EntryForm = () => {
             </button>
         </form>
         {/* show entries */}
-        <div  className='flex flex-col  px-3  bg-richblack-800 rounded-sm '>
+        <div  className='flex flex-col  justify-center items-center px-3  bg-richblack-800 rounded-sm '>
+            
             {
                 entries ? entries.map((entry,index) => (
                     <div key={index} className='flex flex-row  text-richblack-5 rounded-md border border-white'>
@@ -207,7 +217,7 @@ const EntryForm = () => {
                             </div>
                             
                         </div>
-                        <div className='w-[100px] flex items-center justify-center pt-3 border border-white  '>
+                        <div className='w-[200px] flex items-center justify-center pt-3 border border-white  '>
                             <div>
                             {
                                 formatDate(entry?.date)

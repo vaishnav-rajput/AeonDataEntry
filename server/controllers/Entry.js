@@ -13,6 +13,7 @@ exports.createEntry = async (req, res) =>{
             comments,
             type,
             status,
+            
 
         } = req.body;
 
