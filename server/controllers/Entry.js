@@ -29,6 +29,8 @@ exports.createEntry = async (req, res) =>{
         //         message: "All fields are Mandatory"
         //     })
         // }
+        const currentDate = Date.now()
+
 
         //create a new Entry
         const newEntry = await Entry.create({
@@ -42,6 +44,8 @@ exports.createEntry = async (req, res) =>{
             type,
             status,
         })
+        
+       
         
         res.status(200).json({
             success: true,

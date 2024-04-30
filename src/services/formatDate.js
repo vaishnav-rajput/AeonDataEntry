@@ -5,6 +5,7 @@ export const formatDate = (dateString) => {
   
     const hour = date.getHours()
     const minutes = date.getMinutes()
+    
     const period = hour >= 12 ? "PM" : "AM"
     const formattedTime = `${hour % 12}:${minutes
       .toString()

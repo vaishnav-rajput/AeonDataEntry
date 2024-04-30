@@ -18,8 +18,6 @@ export const addNewEntry = async (data) => {
           }
       toast.success("New Entry Created Successfully")
         result = response?.data?.data
-        result.date = formatDate(result.date)
-        console.log("date", result.date)
     } catch (error) {
         console.log("CREATE ENTRY API ERROR............", error)
         toast.error(error.message)

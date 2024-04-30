@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import { setSerial, setNewEntryLoading, setEntriesLoading } from '../slices/entrySlice'
+import { incrementSerial, setNewEntryLoading, setEntriesLoading } from '../slices/entrySlice'
 import { addNewEntry } from '../services/operations/entriesAPI'
 import { getAllEntries } from '../services/operations/entriesAPI'
 import { formatDate } from '../services/formatDate'
@@ -31,8 +31,8 @@ const EntryForm = () => {
         }
         const getEntries = async() => {
             const response = await getAllEntries()
-
-            dispatch(setEntries(response.data))
+            const allEntries = response.data
+            setEntries(allEntries)
             
         }
         setEntriesLoading(true)
@@ -58,7 +58,8 @@ const EntryForm = () => {
         const currentValues = getValues()
         console.log("current Vals", currentValues)
         
-            setSerial(prev => prev + 1)
+                dispatch(incrementSerial())
+                
             console.log("serial no", serial)
 
          const results = await addNewEntry({
@@ -68,6 +69,7 @@ const EntryForm = () => {
             user: currentValues.userName,
             issue: currentValues.issue,
             assignedEngineer: currentValues.assignedEngineer,
+            type: currentValues.type,
             status: currentValues.status
 
          })
@@ -94,7 +96,7 @@ const EntryForm = () => {
 
   return (
     <div>
-        <form onSubmit={handleSubmit(onSubmit)} className='rounded-md items-center justify-center flex border-richblack-700 gap-2 flex-wrap bg-richblack-800 p-6 space-y-8'>
+        <form onSubmit={handleSubmit(onSubmit)} className='rounded-md  items-center justify-center flex border-richblack-700 gap-2  bg-richblack-800 p-6 space-y-8'>
         {/* client */}
         <div  className="flex flex-col space-y-2 pt-[30px]">
             <label className="text-sm text-richblack-5" htmlFor='client'> Client <sup>*</sup></label>
@@ -175,6 +177,22 @@ const EntryForm = () => {
                 )
             }
         </div>
+        {/* type */}
+        <div  className="flex flex-col space-y-2">
+            <label className="text-sm text-richblack-5 " htmlFor='Type'>Type <sup>*</sup></label>
+            
+            <select
+            className='text-white form-style'
+            id='type'
+            defaultValue=""
+            {...register("type")}
+            >
+                <option className=' form-style' value="" disabled>Choose a type</option>
+                <option className='form-style' >remote</option>
+                <option className='form-style'>on-site</option>                
+            </select>
+        </div>
+
         {/* status */}
         <div  className="flex flex-col space-y-2">
             <label className="text-sm text-richblack-5 " htmlFor='status'>Status <sup>*</sup></label>
@@ -191,6 +209,7 @@ const EntryForm = () => {
             </select>
         </div>
         
+        
             <button className='rounded-md bg-blue-100  text-white text-lg h-auto w-[100px]' 
                     
             >
@@ -201,11 +220,71 @@ const EntryForm = () => {
         </form>
         {/* show entries */}
         <div  className='flex flex-col  justify-center items-center px-3  bg-richblack-800 rounded-sm '>
-            
+            <div className='flex flex-row  text-richblack-5 rounded-md border border-white'>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Serial
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Client
+                        </div>
+            </div>
+            <div className=' w-[200px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Date
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Location
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                User
+                        </div>
+            </div>
+            <div className=' w-[200px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Issue
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                 Engineer
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Type
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Status
+                        </div>
+            </div>
+            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
+                        <div>
+                                Actions
+                        </div>
+            </div>
+
+            </div>
             {
                 entries ? entries.map((entry,index) => (
                     <div key={index} className='flex flex-row  text-richblack-5 rounded-md border border-white'>
+                        <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
+                            
+                            <div>
+                                {
+                                 entry?.serial
+                                }
+                        </div>
                         
+                    </div>
                         <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
                             
                                 <div>
@@ -257,6 +336,23 @@ const EntryForm = () => {
                             </div>
                             
                         </div>
+                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
+                            <div>
+                                {
+                                    entry?.type
+                                }
+                            </div>
+                            
+                        </div>
+                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
+                            <div>
+                                {
+                                    entry?.status
+                                }
+                            </div>
+                            
+                        </div>
+
                         <div className="w-[100px] flex items-center justify-center border border-white ">
                             <button className='rounded-md  bg-yellow-800 p-2 align-middle'>
                                 delete
