@@ -15,7 +15,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.onrender.com/api/v1",
+        origin: "https://aeonlogs.onrender.com",
         credentials: true
     })
 )
