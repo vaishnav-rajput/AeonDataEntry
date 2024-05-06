@@ -22,7 +22,7 @@ app.use(
 
 
 //routesde
-app.use("/entry", entryRoutes)
+app.use("api/v1/entry", entryRoutes)
 
 app.get("/" , (req,res) => {
     return res.json({
