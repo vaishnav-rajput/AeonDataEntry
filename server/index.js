@@ -15,14 +15,14 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.onrender.com",
+        origin: "https://aeonlogs.onrender.com/api/v1",
         credentials: true
     })
 )
 
 
 //routesde
-app.use("/api/v1/entry", entryRoutes)
+app.use("/entry", entryRoutes)
 
 app.get("/" , (req,res) => {
     return res.json({
