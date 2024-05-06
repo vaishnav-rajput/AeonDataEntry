@@ -21,14 +21,14 @@ const EntryForm = () => {
     const [newEntry, setNewEntry] = useState(false)
 
     useEffect(() => {
-        if(editEntry){
-            setValue("client", entry.client)
-            setValue("location", entry.location)
-            setValue("userName",entry.user )
-            setValue("issue", entry.issue)
-            setValue("assignedEngineer", entry?.assignedEngineer)
-            setValue("status", entry.status)
-        }
+        // if(editEntry){
+        //     setValue("client", entry.client)
+        //     setValue("location", entry.location)
+        //     setValue("userName",entry.user )
+        //     setValue("issue", entry.issue)
+        //     setValue("assignedEngineer", entry?.assignedEngineer)
+        //     setValue("status", entry.status)
+        // }
         const getEntries = async() => {
             const response = await getAllEntries()
             const allEntries = response.data
@@ -63,7 +63,6 @@ const EntryForm = () => {
             console.log("serial no", serial)
 
          const results = await addNewEntry({
-            serial: serial,
             client: currentValues.client,
             location: currentValues.location,
             user: currentValues.userName,
@@ -274,13 +273,13 @@ const EntryForm = () => {
 
             </div>
             {
-                !loading ? entries.map((entry,index) => (
+                !loading ? entries?.map((entry,index) => (
                     <div key={index} className='flex flex-row  text-richblack-5 rounded-md border border-white'>
                         <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
                             
                             <div>
                                 {
-                                 entry?.serial
+                                 index + 1
                                 }
                         </div>
                         
