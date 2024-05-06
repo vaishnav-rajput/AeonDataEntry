@@ -9,16 +9,17 @@ const database = require("./config/database")
 dotenv.config()
 const PORT = process.env.PORT || 4000;
 
-database.connect()
 
 app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.onrender.com",
+        origin: "http://localhost:3000",
         credentials: true
     })
 )
+
+database.connect()
 
 
 //routesde
