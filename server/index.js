@@ -23,7 +23,7 @@ database.connect()
 
 
 //routesde
-app.use("api/v1/entry", entryRoutes)
+app.use("/api/v1/entry", entryRoutes)
 
 app.get("/" , (req,res) => {
     return res.json({
