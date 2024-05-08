@@ -14,7 +14,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.onrender.com",
+        origin: "https://aeonlogs-kzcgn7w1o-vaishnavs-projects-6155c79d.vercel.app",
         credentials: true
     })
 )
