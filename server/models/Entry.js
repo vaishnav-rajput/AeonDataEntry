@@ -5,6 +5,10 @@ const entrySchema = new mongoose.Schema({
         type: Number,
 
     },
+    invoiceNo: {
+        type: String,
+        
+    },
     date: {
         type: Date,
         default: Date.now()
@@ -45,6 +49,8 @@ const entrySchema = new mongoose.Schema({
         type: String,
 
     }
-})
+},
+    {timestamps: true}
+)
 
 module.exports = mongoose.model("Entry", entrySchema)

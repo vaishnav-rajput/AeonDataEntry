@@ -2,19 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import { incrementSerial, setNewEntryLoading, setEntriesLoading } from '../slices/entrySlice'
-import { addNewEntry } from '../services/operations/entriesAPI'
+import { setNewEntryLoading, setEntriesLoading } from '../slices/entrySlice'
+import { addNewEntry, deleteEntry } from '../services/operations/entriesAPI'
 import { getAllEntries } from '../services/operations/entriesAPI'
 import { formatDate } from '../services/formatDate'
-
+import { formatInvoice } from '../services/formatInvoice'
 
 const EntryForm = () => {
 
     const {register, handleSubmit, setValue, getValues,reset, formState: {errors}} = useForm()
     const dispatch = useDispatch()
     const {serial, entry, editEntry, newEntryLoading} = useSelector((state) => state.entry)
+    const {employee} = useSelector((state) => state.employee)
     const [loading, setLoading] = useState(false)
-    const [employees, setEmployees] = useState([])
     const {entriesLoading} = useSelector((state)  => state.entry)
     
     const [entries, setEntries] = useState([])
@@ -35,9 +35,9 @@ const EntryForm = () => {
             setEntries(allEntries)
             
         }
-        setEntriesLoading(true)
+        dispatch(setEntriesLoading(true))
          getEntries()
-        setEntriesLoading(false)
+        dispatch(setEntriesLoading(false))
 
     },[newEntry])
 
@@ -54,15 +54,17 @@ const EntryForm = () => {
         //     formData.append("assignedEngineer", data.assignedEngineer)
         //     formData.append("status", data.status )
         // }
-        setLoading(true)
+         dispatch(setEntriesLoading(true))
         const currentValues = getValues()
         console.log("current Vals", currentValues)
         
-                dispatch(incrementSerial())
                 
             console.log("serial no", serial)
+            const currDate = Date.now()
+        const invoiceNo = formatInvoice(currDate)    
 
          const results = await addNewEntry({
+            invoiceNo: invoiceNo,
             client: currentValues.client,
             location: currentValues.location,
             user: currentValues.userName,
@@ -73,7 +75,7 @@ const EntryForm = () => {
 
          })
         //  ,token})
-         setLoading(false)
+         dispatch(setEntriesLoading(false))
          setNewEntry(true)
          reset()
         // const formData = new FormData()
@@ -93,9 +95,16 @@ const EntryForm = () => {
         // setNewEntryLoading(false)
     }
 
+    const handleDelete = async(entry) => {
+        dispatch(setEntriesLoading(true))
+        console.log("entry in handle delete", entry)
+        await deleteEntry( entry)
+        dispatch(setEntriesLoading(false))
+    }
+
   return (
     <div>
-        <form onSubmit={handleSubmit(onSubmit)} className='rounded-md  items-center justify-center flex border-richblack-700 gap-2  bg-richblack-800 p-6 space-y-8'>
+        <form onSubmit={handleSubmit(onSubmit)} className='rounded-md  items-center justify-center flex border-richblack-700 gap-2  bg-richblack-800 p-x-6  pb-6 space-y-8'>
         {/* client */}
         <div  className="flex flex-col space-y-2 pt-[30px]">
             <label className="text-sm text-richblack-5" htmlFor='client'> Client <sup>*</sup></label>
@@ -171,7 +180,7 @@ const EntryForm = () => {
                 autoComplete='off'  
             />
             {
-                errors.courseTitle && (
+                errors.assignedEngineer && (
                     <span>please enter assigned engineer</span>
                 )
             }
@@ -218,153 +227,61 @@ const EntryForm = () => {
             </button>
         </form>
         {/* show entries */}
+
         <div  className='flex flex-col  justify-center items-center px-3  bg-richblack-800 rounded-sm '>
-            <div className='flex flex-row  text-richblack-5 rounded-md border border-white'>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Serial
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Client
-                        </div>
-            </div>
-            <div className=' w-[200px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Date
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Location
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                User
-                        </div>
-            </div>
-            <div className=' w-[200px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Issue
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                 Engineer
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Type
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Status
-                        </div>
-            </div>
-            <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>          
-                        <div>
-                                Actions
-                        </div>
-            </div>
+        <table className="w-full table-auto text-white">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="px-4 py-2">Serial</th>
+            <th className="px-4 py-2">Invoice</th>
+            <th className="px-4 py-2">Client</th>
+            <th className="px-4 py-2">Date</th>
+            <th className="px-4 py-2">Location</th>
+            <th className="px-4 py-2">User</th>
+            <th className="px-4 py-2">Issue</th>
+            <th className="px-4 py-2">Engineer</th>
+            <th className="px-4 py-2">Type</th>
+            <th className="px-4 py-2">Status</th>
+                {
+                    employee == "Amish" && 
+                    <th className='px-4 py-2'>Actions</th>
+                }
+          </tr>
+        </thead>
+        <tbody>
 
-            </div>
             {
-                !loading ? entries?.map((entry,index) => (
-                    <div key={index} className='flex flex-row  text-richblack-5 rounded-md border border-white'>
-                        <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
-                            
-                            <div>
-                                {
-                                 index + 1
-                                }
-                        </div>
+                !entriesLoading ? (entries?.map((entry,index) => (
+                    <tr key={entry._id}>
+                        <td className="border px-4 py-2">{index + 1}</td>
+                        <td className="border px-4 py-2">{entry.invoiceNo}</td>
+                        <td className="border px-4 py-2">{entry.client}</td>
+                        <td className="border px-4 py-2">{formatDate(entry.date)}</td>
+                        <td className="border px-4 py-2">{entry.location}</td>
+                        <td className="border px-4 py-2">{entry.user}</td>
+                        <td className="border px-4 py-2">{entry.issue}</td>
+                        <td className="border px-4 py-2">{entry.assignedEngineer}</td>
+                        <td className="border px-4 py-2">{entry.type}</td>
+                        <td className="border px-4 py-2">{entry.status}</td>
+                        {
+                            employee == "Amish" &&
+                            <td className="border px-4 py-2">
+                            <div className="w-[100px] flex items-center justify-center border border-white ">
+                                <button onClick={() => handleDelete(entry)} className='rounded-md  bg-yellow-800 p-2 align-middle'>
+                                    delete
+                                </button>
+                            </div>
+                           </td>
+                        }
                         
-                    </div>
-                        <div className=' w-[100px] flex items-center justify-center pt-3 border border-white '>
-                            
-                                <div>
-                                    {
-
-                                    
-                                     entry?.client
-                                    }
-                            </div>
-                            
-                        </div>
-                        <div className='w-[200px] flex items-center justify-center pt-3 border border-white  '>
-                            <div>
-                            {
-                                formatDate(entry?.date)
-                            
-                            }
-                            </div>
-                        </div>
-                        <div className='w-[100px] flex items-center justify-center pt-3 border border-white  '>
-                            <div>
-                            {
-                                entry?.location
-                             }
-                            </div>
-                            
-                        </div>
-                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
-                            <div>
-                                {
-                                    entry?.user
-                                }
-                            </div>
-                           
-                        </div>
-                        <div className="w-[200px] flex items-center justify-center pt-3 border border-white ">
-                            <div>
-                                {
-                                    entry?.issue
-                                }
-                            </div>
-                           
-                        </div>
-                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
-                            <div>
-                                {
-                                    entry?.assignedEngineer
-                                }
-                            </div>
-                            
-                        </div>
-                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
-                            <div>
-                                {
-                                    entry?.type
-                                }
-                            </div>
-                            
-                        </div>
-                        <div className="w-[100px] flex items-center justify-center pt-3 border border-white ">
-                            <div>
-                                {
-                                    entry?.status
-                                }
-                            </div>
-                            
-                        </div>
-
-                        <div className="w-[100px] flex items-center justify-center border border-white ">
-                            <button className='rounded-md  bg-yellow-800 p-2 align-middle'>
-                                delete
-                            </button>
-                        </div>
-                    </div>
-                ))
-                    
-                    : (<div>
-                        <h1>LOADING....</h1>
-                    </div>)
-
+                    </tr>
+                )
+                )): (<div>Loading</div>)
             }
+        </tbody>
+      </table>
+          
+
         </div>
     </div>
   )

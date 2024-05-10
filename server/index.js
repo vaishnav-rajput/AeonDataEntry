@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser")
 const cors = require("cors")
 const dotenv = require("dotenv")
 const database = require("./config/database")
+const clientRoutes = require("./routes/Client")
 
 dotenv.config()
 const PORT = process.env.PORT || 4000;
@@ -14,7 +15,8 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.vercel.app",
+        // origin: "https://aeonlogs.vercel.app",
+        origin: "http://localhost:3000",
         credentials: true
     })
 )
@@ -24,6 +26,7 @@ database.connect()
 
 //routesde
 app.use("/api/v1/entry", entryRoutes)
+app.use("/api/v1/client", clientRoutes )
 
 app.get("/" , (req,res) => {
     return res.json({

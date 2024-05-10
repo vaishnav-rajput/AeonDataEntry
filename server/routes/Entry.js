@@ -6,6 +6,6 @@ const {createEntry, showAllEntries, editEntry, deleteEntry } = require("../contr
 router.post("/createEntry", createEntry)
 router.get("/showAllEntries" , showAllEntries)
 router.post("/editEntry", editEntry)
-router.delete("/deleteEntry", deleteEntry)
+router.post("/deleteEntry", deleteEntry)
 
 module.exports = router

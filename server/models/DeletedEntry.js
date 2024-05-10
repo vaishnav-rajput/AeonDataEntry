@@ -1,48 +1,41 @@
 const mongoose = require("mongoose")
 
 const deleteEntrySchema = new mongoose.Schema({
-    Serial: {
-        type: Number,
-
+    dInvoiceNo: {
+        type: String,
     },
-    Date:{
-        type: Date,
-    },
-    Client: {
+    dClient: {
         type: String,
         required: true,
 
     },
-    Location: {
+    dLocation: {
         type: String,
         
     },
-    User: {
+    dUser: {
         type: String,
     },
-    Issue: {
-        type: String,
-        required: true,
-    },
-    AssignedEngineer: {
+    dIssue: {
         type: String,
         required: true,
     },
-    Comments: {
+    dAssignedEngineer: {
+        type: String,
+        required: true,
+    },
+    dComments: {
         type: String,
     },
-    Type: {
+    dType: {
         type: String,
         enum: ["remote", "on-site"],
     },
-    Status: {
+    dStatus: {
         type: String,
         enum: ["pending", "done"],
     },
-    DeletedAt: {
-        type: Date,
-        default: Date.now
-    }
-})
+    
+}, {timestamps: true})
 
 module.exports = mongoose.model("DeletedEntry", deleteEntrySchema)

@@ -1,10 +1,10 @@
 import toast from "react-hot-toast";
 import { apiConnector } from "../apiconnector";
 import { entryEndpoints } from "../apis";
-import { formatDate } from "../formatDate";
+import { setEntriesLoading } from "../../slices/entrySlice";
 
 
-const {CREATEENTRY_API,  GETALLENTRIES_API} = entryEndpoints
+const {CREATEENTRY_API,  GETALLENTRIES_API, DELETEENTRY_API} = entryEndpoints
 
 export const addNewEntry = async (data) => {
     let result = null
@@ -42,4 +42,25 @@ export const getAllEntries = async() => {
     }
     toast.dismiss(toastId)
     return result
+}
+
+
+export const deleteEntry = async( entry) => {
+        const toastId = toast.loading("loading...")
+        console.log("entry in delete Entry API", entry)
+        setEntriesLoading(true)
+        try {
+            const response = await apiConnector("POST", DELETEENTRY_API, entry)
+            console.log("DELETE ENTRY API RESPONSE", response)
+            if (!response?.data?.success) {
+                throw new Error("Could Not Delete Entry")
+              }
+            toast.success("Entry deleted successfully")  
+        setEntriesLoading(false)
+        } catch (error) {
+            console.log("DELETE ENTRY API ERROR............", error)
+            toast.error(error.message)
+        }
+        toast.dismiss(toastId)
+    
 }

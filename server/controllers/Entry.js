@@ -1,10 +1,12 @@
 const Entry = require("../models/Entry")
-const DeletedEntry = require("../models/DeletedEntry")
+const DeletedEntry = require("../models/DeletedEntry");
+const { GrStatusInfoSmall } = require("react-icons/gr");
 
 exports.createEntry = async (req, res) =>{
     try {
         const {
             serial,
+            invoiceNo,
             client,
             location,
             user,
@@ -35,6 +37,7 @@ exports.createEntry = async (req, res) =>{
         //create a new Entry
         const newEntry = await Entry.create({
             serial,
+            invoiceNo,
             client,
             location,
             user,
@@ -95,28 +98,25 @@ exports.editEntry = async (req, res) =>{
 
 exports.deleteEntry = async(req, res) =>{
     try {
-        const {entryId} = req.body
-        const {Serial, Date, Client, Location, User, Issue, AssignedEngineer,Comments, Type, Status} = req.body;
+        const {_id, invoiceNo, client, location, user, issue, assignedEngineer,comments, type, status} = req.body;
 
-        const deleteEntry = await Entry.findById(entryId)
+        await Entry.findByIdAndDelete(_id)
 
-        if (!deleteEntry) {
-            return res.status(404).json({ message: "Entry not found" })
-          }
+        // if(!deleteEntry){
+        //     return res.status(404).json({message: "entry not found"})
+        // }
 
-          await Course.findByIdAndDelete(entryId)
 
           const newDeletedEntry = await DeletedEntry.create({
-            Serial,
-            Date,
-            Client,
-            Location,
-            User,
-            Issue,
-            AssignedEngineer,
-            Comments,
-            Type,
-            Status,
+            dInvoiceNo: invoiceNo,            
+            dClient: client,
+            dLocation: location,
+            dUser:user ,
+            dIssue: issue,
+            dAssignedEngineer: assignedEngineer,
+            dComments: comments,
+            dType: type,
+            dStatus: status,
         } )
 
         return res.status(200).json({
