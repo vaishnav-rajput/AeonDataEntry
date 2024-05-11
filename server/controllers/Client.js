@@ -1,10 +1,11 @@
 const {Mongoose} = require("mongoose")
 const Client = require("../models/Client")
+const Entry = require("../models/Entry")
 
 exports.createClient = async (req, res) => {
     try{
         const {name} = req.body;
-        if(!name){
+        if(name == ""){
             return res
                 .status(400)
                 .json({success: false, message: "all fields are mandatory"})
@@ -41,5 +42,45 @@ exports.clientDetails = async (req, res) => {
             success:false,
             message:error.message,
         });
+    }
+}
+
+
+exports.showAllClients = async (req, res) => {
+	try {
+		const allClients = await Client.find({});
+		res.status(200).json({
+			success: true,
+			data: allClients,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+};
+
+
+exports.clientEntries = async(req, res) => {
+    try {
+        let result = []
+        const {clientName} = req.body
+        console.log("clientName", clientName)
+        const response = await Entry.find({client: clientName})
+        console.log("response ", response)
+        result = response
+        console.log("client Entries response", response)
+        res.status(200).json({
+            success: true,
+            message: "client entries fetched",
+            data: result
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
     }
 }

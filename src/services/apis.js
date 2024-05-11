@@ -6,3 +6,8 @@ export const entryEndpoints = {
     DELETEENTRY_API: BASE_URL + "/entry/deleteEntry"
 }
 
+export const clientEndpoints = {
+    GETALLCLIENTS_API: BASE_URL + "/client/showAllClients",
+    CREATECLIENT_API: BASE_URL + "/client/createClient",
+    CLIENTENTRIES_API: BASE_URL + "/client/clientEntries"
+}

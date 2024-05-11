@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
@@ -7,9 +7,12 @@ import { addNewEntry, deleteEntry } from '../services/operations/entriesAPI'
 import { getAllEntries } from '../services/operations/entriesAPI'
 import { formatDate } from '../services/formatDate'
 import { formatInvoice } from '../services/formatInvoice'
+import { fetchALLClients, getClientEntries } from '../services/operations/clientAPI'
+import { useDownloadExcel } from 'react-export-table-to-excel'
+import SearchClient from './SearchClient'
 
 const EntryForm = () => {
-
+    const tableRef = useRef(null)
     const {register, handleSubmit, setValue, getValues,reset, formState: {errors}} = useForm()
     const dispatch = useDispatch()
     const {serial, entry, editEntry, newEntryLoading} = useSelector((state) => state.entry)
@@ -20,6 +23,10 @@ const EntryForm = () => {
     const [entries, setEntries] = useState([])
     const [newEntry, setNewEntry] = useState(false)
     const [deletedEntry, setDeletedEntry] = useState(false)
+    const [clients, setClients] = useState([])
+    const curr = Date.now()
+    const currDate = formatDate(curr)
+    const [filterApplied, setFilterApplied] = useState(false)
 
     useEffect(() => {
         // if(editEntry){
@@ -36,12 +43,34 @@ const EntryForm = () => {
             setEntries(allEntries)
             
         }
+        
         dispatch(setEntriesLoading(true))
          getEntries()
         dispatch(setEntriesLoading(false))
 
     },[newEntry, deletedEntry])
 
+    useEffect(() => {
+      
+        const getClients = async() => {
+            setLoading(true)
+            try {
+                const response = await fetchALLClients()
+                setClients(response)
+            } catch (error) {
+                console.log("Could not fetch Clients", error)
+            }
+            setLoading(false)
+        }
+        getClients()
+    }, [])
+
+    const {onDownload} = useDownloadExcel({
+        currentTableRef: tableRef.current,
+        filename: String(currDate),
+        sheet: 'call_data'
+    })
+    
 
     const  onSubmit = async(data) =>{
         
@@ -106,23 +135,71 @@ const EntryForm = () => {
         setDeletedEntry(true)
     }
 
+    const handleFilter = async (clientName) => {
+        try {
+            setEntriesLoading(true)
+            setLoading(true)
+            console.log("clientName is", clientName)
+            const response = await getClientEntries(clientName)
+            setLoading(false)
+            setEntriesLoading(false)
+            console.log("response", response)
+            setEntries(response?.data?.data)
+            console.log("entries", entries)
+        } catch (error) {
+            console.log("Could not fetch Client Entries", error)
+            
+        }
+    }
+
   return (
-    <div>
+    <div>   
+        <div className="flex space-y-2 items-center m-x-6">
+            <label className="text-sm text-richblack-5" htmlFor='clientToFilter'>Filter Entries</label>
+            <select 
+                className="form-style"
+                defaultValue=""
+                name='clientToFilter'
+                onChange={(e) => handleFilter(e.target.value)}
+                >
+                    <option className='text-black' value="" >Choose a Client</option>
+                    {
+                        !loading && clients.map((client, index) => (
+                            
+                            <option onClick={handleFilter} key={index}  value={client?.name}>
+                                {client?.name}
+                            </option>
+                    
+                        ))
+                    }
+            </select>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className='rounded-md  items-center justify-center flex border-richblack-700 gap-2  bg-richblack-800 p-x-6  pb-6 space-y-8'>
         {/* client */}
-        <div  className="flex flex-col space-y-2 pt-[30px]">
-            <label className="text-sm text-richblack-5" htmlFor='client'> Client <sup>*</sup></label>
-            <input 
-                id='client'
-                placeholder='enter client name'
-                {...register("client", {required: true})}
+        
+         <div className="flex flex-col space-y-2 pt-[30px]">
+            <label className="text-sm text-richblack-5" htmlFor='client'>Client<sup>*</sup></label>
+            <select 
                 className="form-style w-full"
-                autoComplete='off'
-            />
-            {
-                errors.client && (
-                    <span>please enter client name</span>
-                )
+                id='client'
+                defaultValue=""
+                {...register("client", {required: true})}
+                >
+                    <option className='text-black' value="" disabled>Choose a Client</option>
+                    {
+                        !loading && clients.map((client, index) => (
+                            
+                            <option key={index} value={client?.name}>
+                                {client?.name}
+                            </option>
+                        ))
+                    }
+            </select>
+            {errors.courseCategory && (
+                <span>
+                    Client is required
+                </span>
+            )
             }
         </div>
         {/* location */}
@@ -233,7 +310,7 @@ const EntryForm = () => {
         {/* show entries */}
 
         <div  className='flex flex-col  justify-center items-center px-3  bg-richblack-800 rounded-sm '>
-        <table className="w-full table-auto text-white">
+        <table ref={tableRef} className="w-full table-auto text-white">
         <thead>
           <tr className="bg-gray-200">
             <th className="px-4 py-2">Serial</th>
@@ -255,7 +332,7 @@ const EntryForm = () => {
         <tbody>
 
             {
-                !entriesLoading ? (entries?.map((entry,index) => (
+                !loading ? (entries?.map((entry,index) => (
                     <tr key={entry._id}>
                         <td className="border px-4 py-2">{index + 1}</td>
                         <td className="border px-4 py-2">{entry.invoiceNo}</td>
@@ -280,12 +357,15 @@ const EntryForm = () => {
                         
                     </tr>
                 )
-                )): (<div>Loading</div>)
+                )): (<div><h1 className='text-white'>Loading...</h1></div>)
             }
         </tbody>
       </table>
-          
-
+      <div className=" flex w-full text-white mt-3">
+        <button className='justify-self-end p-2  bg-caribbeangreen-700 rounded-sm '  onClick={onDownload}>
+            Download Report
+        </button>
+      </div>
         </div>
     </div>
   )
