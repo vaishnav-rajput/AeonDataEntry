@@ -19,6 +19,7 @@ const EntryForm = () => {
     
     const [entries, setEntries] = useState([])
     const [newEntry, setNewEntry] = useState(false)
+    const [deletedEntry, setDeletedEntry] = useState(false)
 
     useEffect(() => {
         // if(editEntry){
@@ -39,7 +40,7 @@ const EntryForm = () => {
          getEntries()
         dispatch(setEntriesLoading(false))
 
-    },[newEntry])
+    },[newEntry, deletedEntry])
 
 
     const  onSubmit = async(data) =>{
@@ -55,6 +56,7 @@ const EntryForm = () => {
         //     formData.append("status", data.status )
         // }
          dispatch(setEntriesLoading(true))
+         setNewEntry(false)
         const currentValues = getValues()
         console.log("current Vals", currentValues)
         
@@ -96,10 +98,12 @@ const EntryForm = () => {
     }
 
     const handleDelete = async(entry) => {
+        setDeletedEntry(false)
         dispatch(setEntriesLoading(true))
         console.log("entry in handle delete", entry)
         await deleteEntry( entry)
         dispatch(setEntriesLoading(false))
+        setDeletedEntry(true)
     }
 
   return (
@@ -256,7 +260,7 @@ const EntryForm = () => {
                         <td className="border px-4 py-2">{index + 1}</td>
                         <td className="border px-4 py-2">{entry.invoiceNo}</td>
                         <td className="border px-4 py-2">{entry.client}</td>
-                        <td className="border px-4 py-2">{formatDate(entry.date)}</td>
+                        <td className="border px-4 py-2">{formatDate(entry.createdAt)}</td>
                         <td className="border px-4 py-2">{entry.location}</td>
                         <td className="border px-4 py-2">{entry.user}</td>
                         <td className="border px-4 py-2">{entry.issue}</td>
