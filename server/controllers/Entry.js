@@ -1,6 +1,5 @@
 const Entry = require("../models/Entry")
 const DeletedEntry = require("../models/DeletedEntry");
-const { GrStatusInfoSmall } = require("react-icons/gr");
 
 exports.createEntry = async (req, res) =>{
     try {
