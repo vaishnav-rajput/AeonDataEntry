@@ -97,7 +97,7 @@ exports.editEntry = async (req, res) =>{
 
 exports.deleteEntry = async(req, res) =>{
     try {
-        const {_id, invoiceNo, client, location, user, issue, assignedEngineer,comments, type, status} = req.body;
+        const {_id, invoiceNo, client, createdAt, location, user, issue, assignedEngineer,comments, type, status} = req.body;
 
         await Entry.findByIdAndDelete(_id)
 
@@ -109,8 +109,9 @@ exports.deleteEntry = async(req, res) =>{
           const newDeletedEntry = await DeletedEntry.create({
             dInvoiceNo: invoiceNo,            
             dClient: client,
+            dDate: createdAt,
             dLocation: location,
-            dUser:user ,
+            dUser:user,
             dIssue: issue,
             dAssignedEngineer: assignedEngineer,
             dComments: comments,

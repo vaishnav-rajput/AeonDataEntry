@@ -21,7 +21,7 @@ const AddClient = () => {
     
     const handleOnSubmit = (e) => {
         e.preventDefault()
-        dispatch(createClient(clientName, navigate))
+        dispatch(createClient(formData.clientName, navigate))
     }
 
       
@@ -41,6 +41,7 @@ const AddClient = () => {
             value={clientName}
             onChange={handleOnChange}
             placeholder="Enter Client Name"
+            autoComplete='off'
             style={{
                 boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
             }}

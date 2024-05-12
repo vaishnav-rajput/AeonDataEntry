@@ -9,6 +9,9 @@ const deleteEntrySchema = new mongoose.Schema({
         required: true,
 
     },
+    dDate: {
+        type: Date,
+    },
     dLocation: {
         type: String,
         
@@ -35,7 +38,7 @@ const deleteEntrySchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "done"],
     },
-    
+    expiresAt: { type: Date, default: () => new Date(Date.now()+3 * 24 * 60 * 60 * 1000), },
 }, {timestamps: true})
 
 module.exports = mongoose.model("DeletedEntry", deleteEntrySchema)

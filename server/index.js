@@ -6,6 +6,7 @@ const cors = require("cors")
 const dotenv = require("dotenv")
 const database = require("./config/database")
 const clientRoutes = require("./routes/Client")
+const logsRoutes = require("./routes/Logs") 
 
 dotenv.config()
 const PORT = process.env.PORT || 4000;
@@ -24,9 +25,10 @@ app.use(
 database.connect()
 
 
-//routesde
+//routes
 app.use("/api/v1/entry", entryRoutes)
 app.use("/api/v1/client", clientRoutes )
+app.use("/api/v1/logs", logsRoutes)
 
 app.get("/" , (req,res) => {
     return res.json({

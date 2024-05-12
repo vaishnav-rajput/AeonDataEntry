@@ -11,3 +11,7 @@ export const clientEndpoints = {
     CREATECLIENT_API: BASE_URL + "/client/createClient",
     CLIENTENTRIES_API: BASE_URL + "/client/clientEntries"
 }
+
+export const logsEndpoints = {
+    GET_DELETED_LOGS: BASE_URL + "/logs/getDeletedLogs"
+}
