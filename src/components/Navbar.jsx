@@ -12,7 +12,10 @@ const Navbar = () => {
   return (
     <div className='w-screen p-2 select-none'>
         <nav className='flex mx-auto w-[95%] justify-between'>
+            <Link to={"/"}>
             <img src={logo} width={150} height={50} />
+
+            </Link>
                 {
                     employee == "Amish" ? (
                         <ul className='flex gap-3  items-center text-white'>

@@ -2,6 +2,7 @@ const Entry = require("../models/Entry")
 const DeletedEntry = require("../models/DeletedEntry");
 
 const mongoose = require('mongoose');
+const EditedEntry = require("../models/EditedEntry");
 
 
 exports.createEntry = async (req, res) =>{
@@ -89,6 +90,27 @@ exports.editEntry = async (req, res) =>{
         
         console.log("the previous entry was ", oldEntryObject)
         console.log("the updated entry is ", updatedEntry)
+
+        await EditedEntry.create({
+            eInvoiceNo: updatedEntry.invoiceNo,
+            oClient:oldEntryObject.client,
+            eClient:updatedEntry.client,
+            oDate: oldEntryObject.createdAt,
+            oLocation:oldEntryObject.location,
+            eLocation: updatedEntry.location,
+            oUser: oldEntryObject.user,
+            eUser: updatedEntry.user,
+            oIssue: oldEntryObject.issue,
+            eIssue: updatedEntry.issue,
+            oAssignedEngineer: oldEntryObject.assignedEngineer,
+            eAssignedEngineer: updatedEntry.assignedEngineer,
+            oComments: oldEntryObject.comments,
+            eComments: updatedEntry.comments,
+            oType: oldEntryObject.type ,
+            eType: updatedEntry.type,
+            oStatus: oldEntryObject.status,
+            eStatus: updatedEntry.status,
+        })
           
         res.json({
             success: true,

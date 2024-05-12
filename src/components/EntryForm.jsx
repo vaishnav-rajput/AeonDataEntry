@@ -386,7 +386,7 @@ const EntryForm = () => {
                         {
                             employee == "Amish" &&
                             <td className="border px-4 py-2">
-                            <div className="w-[100px] flex flex-col gap-y-2 items-center justify-center border border-white ">
+                            <div className="w-[100px] flex flex-col gap-y-2 p-1 items-center justify-center ">
                                 <button onClick={() => handleDelete(entry)} className='rounded-md  bg-yellow-800 p-2 align-middle'>
                                     delete
                                 </button>

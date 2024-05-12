@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { createClient } from '../services/operations/clientAPI'
 
 
@@ -48,10 +48,22 @@ const AddClient = () => {
             className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
             />
             </label>
-            <button>
-                Submit
+            <div className='flex gap-2 mt-5'>
+            <Link to={"/"}>
+            <p>
+              return to HomePage 
+            </p>
+            </Link>
+            <button className='p-1 px-2 bg-caribbeangreen-300'>
+                Add Client
             </button>
+            </div>
+          
         </form>
+        <div>
+          
+          
+        </div>
     </div>
   )
 }

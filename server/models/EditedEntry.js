@@ -5,41 +5,62 @@ const editedEntrySchema = new mongoose.Schema(
         eInvoiceNo: {
             type: String,
         },
+        oClient: {
+            type: String,
+        },
+        oDate: {
+            type: Date,
+        },
         eClient: {
             type: String,
-            required: true,
     
+        },
+        oLocation: {
+            type: String,
         },
         eLocation: {
             type: String,
             
         },
+        oUser: {
+            type: String,
+        },
         eUser: {
+            type: String,
+        },
+        oIssue: {
             type: String,
         },
         eIssue: {
             type: String,
-            required: true,
+        },
+        oAssignedEngineer: {
+            type: String,
         },
         eAssignedEngineer: {
             type: String,
             required: true,
         },
+        oComments:{
+            type: String,
+        },
         eComments: {
+            type: String,
+        },
+        oType: {
             type: String,
         },
         eType: {
             type: String,
             enum: ["remote", "on-site"],
         },
+        oStatus: {
+            type: String,
+        },
         eStatus: {
             type: String,
             enum: ["pending", "done"],
         },
-        originalEntryId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Entry"
-        }
 
 }, {timestamps: true}) 
 

@@ -14,5 +14,6 @@ export const clientEndpoints = {
 }
 
 export const logsEndpoints = {
-    GET_DELETED_LOGS: BASE_URL + "/logs/getDeletedLogs"
+    GET_DELETED_LOGS: BASE_URL + "/logs/getDeletedLogs",
+    GET_EDITED_LOGS: BASE_URL + "/logs/getEditedEntries"
 }
