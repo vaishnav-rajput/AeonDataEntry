@@ -3,7 +3,8 @@ const BASE_URL = process.env.REACT_APP_BASE_URL
 export const entryEndpoints = {
     CREATEENTRY_API: BASE_URL + "/entry/createEntry",
     GETALLENTRIES_API: BASE_URL + "/entry/showAllEntries",
-    DELETEENTRY_API: BASE_URL + "/entry/deleteEntry"
+    DELETEENTRY_API: BASE_URL + "/entry/deleteEntry",
+    EDITENTRY_API: BASE_URL + "/entry/editEntry"
 }
 
 export const clientEndpoints = {

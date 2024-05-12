@@ -1,6 +1,9 @@
 const Entry = require("../models/Entry")
 const DeletedEntry = require("../models/DeletedEntry");
 
+const mongoose = require('mongoose');
+
+
 exports.createEntry = async (req, res) =>{
     try {
         const {
@@ -64,24 +67,35 @@ exports.editEntry = async (req, res) =>{
     try {
         const {entryId} = req.body
         const updates = req.body
-        const entry = await Entry.findById(entryId)
-
+        const idInObjectForm =  new mongoose.Types.ObjectId(entryId);
+        const originalEntry = await Entry.findById(entryId)
+        const oldEntryObject = { ...originalEntry.toObject() };
+        
         for(const key in updates){
             if(updates.hasOwnProperty(key)){
-                entry[key] = updates[key]
+                originalEntry[key] = updates[key]
              }
         }
         
-        await entry.save()
+
+        await originalEntry.save()
+
+
+
 
         const updatedEntry = await Entry.findOne({
-            _id: entryId,
-          }, {new: true}).exec()
-
+            _id: idInObjectForm,
+          }).exec()
+        
+        console.log("the previous entry was ", oldEntryObject)
+        console.log("the updated entry is ", updatedEntry)
+          
         res.json({
             success: true,
             message: "Entry updated successfully",
-            data: updatedEntry
+            data: {updatedEntry,
+                oldEntryObject
+            }
 
         })  
 

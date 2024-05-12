@@ -11,8 +11,8 @@ const Navbar = () => {
 
   return (
     <div className='w-screen p-2 select-none'>
-        <nav className='flex justify-between'>
-            <img src={logo} width={150} />
+        <nav className='flex mx-auto w-[95%] justify-between'>
+            <img src={logo} width={150} height={50} />
                 {
                     employee == "Amish" ? (
                         <ul className='flex gap-3  items-center text-white'>

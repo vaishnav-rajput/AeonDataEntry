@@ -2,20 +2,22 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
-import { setNewEntryLoading, setEntriesLoading } from '../slices/entrySlice'
-import { addNewEntry, deleteEntry } from '../services/operations/entriesAPI'
+import { setNewEntryLoading, setEntriesLoading, setEditEntry, setEntry } from '../slices/entrySlice'
+import { addNewEntry, deleteEntry, updateEntry } from '../services/operations/entriesAPI'
 import { getAllEntries } from '../services/operations/entriesAPI'
 import { formatDate } from '../services/formatDate'
 import { formatInvoice } from '../services/formatInvoice'
 import { fetchALLClients, getClientEntries } from '../services/operations/clientAPI'
 import { useDownloadExcel } from 'react-export-table-to-excel'
 import SearchClient from './SearchClient'
+import toast from 'react-hot-toast'
+
 
 const EntryForm = () => {
     const tableRef = useRef(null)
     const {register, handleSubmit, setValue, getValues,reset, formState: {errors}} = useForm()
     const dispatch = useDispatch()
-    const {serial, entry, editEntry, newEntryLoading} = useSelector((state) => state.entry)
+    const {serial, entry, editEntry} = useSelector((state) => state.entry)
     const {employee} = useSelector((state) => state.employee)
     const [loading, setLoading] = useState(false)
     const {entriesLoading} = useSelector((state)  => state.entry)
@@ -26,17 +28,9 @@ const EntryForm = () => {
     const [clients, setClients] = useState([])
     const curr = Date.now()
     const currDate = formatDate(curr)
-    const [filterApplied, setFilterApplied] = useState(false)
 
     useEffect(() => {
-        // if(editEntry){
-        //     setValue("client", entry.client)
-        //     setValue("location", entry.location)
-        //     setValue("userName",entry.user )
-        //     setValue("issue", entry.issue)
-        //     setValue("assignedEngineer", entry?.assignedEngineer)
-        //     setValue("status", entry.status)
-        // }
+        
         const getEntries = async() => {
             const response = await getAllEntries()
             const allEntries = response.data
@@ -48,7 +42,7 @@ const EntryForm = () => {
          getEntries()
         dispatch(setEntriesLoading(false))
 
-    },[newEntry, deletedEntry])
+    },[newEntry, deletedEntry, editEntry])
 
     useEffect(() => {
       
@@ -71,19 +65,50 @@ const EntryForm = () => {
         sheet: 'call_data'
     })
     
+    const isFormUpdated = () => {
+        const currentValues = getValues()
+        if(currentValues.client !== entry.client ||
+            currentValues.location !== entry.location ||
+            currentValues.userName !== entry.user ||
+            currentValues.issue !== entry.issue ||
+            currentValues.type !== entry.type ||
+            currentValues.assignedEngineer !== entry.assignedEngineer ||
+            currentValues.status !== entry.status  )
+            return true
+        else
+            return false
+    }
 
     const  onSubmit = async(data) =>{
         
-        // if(editEntry){
-        //     const currentValues = getValues
-        //     const formData = new FormData()
-        //     formData.append("client", data.client)
-        //     formData.append("location", data.location)
-        //     formData.append("user", data.userName)
-        //     formData.append("issue", data.issue)
-        //     formData.append("assignedEngineer", data.assignedEngineer)
-        //     formData.append("status", data.status )
-        // }
+        if(editEntry){
+            if(isFormUpdated){
+                const currentValues = getValues
+                const formData = new FormData()
+                formData.append("client", data.client)
+                formData.append("location", data.location)
+                formData.append("user", data.userName)
+                formData.append("issue", data.issue)
+                formData.append("assignedEngineer", data.assignedEngineer)
+                formData.append("status", data.status )
+                formData.append("type", data.type )
+                formData.append("entryId", entry._id)
+                var object = {};
+                formData.forEach((value, key) => object[key] = value);
+                console.log("object will be" , object)
+
+                // api call
+                const result = await updateEntry(object)
+                dispatch(setEditEntry(false))
+                reset()
+            }
+            else{
+                toast.error("No changes made so far")
+            }
+            return
+        }
+        
+
          dispatch(setEntriesLoading(true))
          setNewEntry(false)
         const currentValues = getValues()
@@ -135,6 +160,20 @@ const EntryForm = () => {
         setDeletedEntry(true)
     }
 
+    const handleEdit = async(entry) => {
+        const entryId = entry._id;
+        dispatch(setEditEntry(true))
+        dispatch(setEntry(entry))
+        setValue("client", entry.client)
+        setValue("location", entry.location)
+        setValue("userName", entry.user)
+        setValue("issue", entry.issue)
+        setValue("assignedEngineer", entry.assignedEngineer)
+        setValue("type", entry.type)
+        setValue("status", entry.status)
+
+    }
+
     const handleFilter = async (clientName) => {
         try {
             setEntriesLoading(true)
@@ -154,8 +193,8 @@ const EntryForm = () => {
 
   return (
     <div>   
-        <div className="flex space-y-2 items-center m-x-6">
-            <label className="text-sm text-richblack-5" htmlFor='clientToFilter'>Filter Entries</label>
+        <div  className="ml-12  w-[95%] flex space-y-2 items-center m-x-6">
+            <label className="text-md text-richblack-5 pt-1 mr-2 " htmlFor='clientToFilter'>Filter Entries:</label>
             <select 
                 className="form-style"
                 defaultValue=""
@@ -310,7 +349,7 @@ const EntryForm = () => {
         {/* show entries */}
 
         <div  className='flex flex-col  justify-center items-center px-3  bg-richblack-800 rounded-sm '>
-        <table ref={tableRef} className="w-full table-auto text-white">
+        <table ref={tableRef} className="w-[95%] table-auto text-white">
         <thead>
           <tr className="bg-gray-200">
             <th className="px-4 py-2">Serial</th>
@@ -347,9 +386,12 @@ const EntryForm = () => {
                         {
                             employee == "Amish" &&
                             <td className="border px-4 py-2">
-                            <div className="w-[100px] flex items-center justify-center border border-white ">
+                            <div className="w-[100px] flex flex-col gap-y-2 items-center justify-center border border-white ">
                                 <button onClick={() => handleDelete(entry)} className='rounded-md  bg-yellow-800 p-2 align-middle'>
                                     delete
+                                </button>
+                                <button onClick={() => handleEdit(entry)} className='rounded-md  bg-yellow-800 p-2 align-middle'>
+                                    edit
                                 </button>
                             </div>
                            </td>
@@ -361,7 +403,7 @@ const EntryForm = () => {
             }
         </tbody>
       </table>
-      <div className=" flex w-full text-white mt-3">
+      <div className=" flex w-[95%] text-white mt-3">
         <button className='justify-self-end p-2  bg-caribbeangreen-700 rounded-sm '  onClick={onDownload}>
             Download Report
         </button>

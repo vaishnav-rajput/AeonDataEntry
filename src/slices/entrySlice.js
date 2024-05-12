@@ -12,8 +12,8 @@ const entrySlice = createSlice({
     name: "entry",
     initialState,
     reducers:{
-        incrementSerial : (state) => {
-            state.serial += 1
+        setEntry : (state, action) => {
+            state.entry = action.payload
         },
         setEditEntry: (state, action) => {
             state.editEntry = action.payload
@@ -31,5 +31,5 @@ const entrySlice = createSlice({
     }
 })
 
-export const {incrementSerial, setEditEntry, resetEntryState, setNewEntryLoading, setEntriesLoading} = entrySlice.actions
+export const {setEditEntry,setEntry, resetEntryState, setNewEntryLoading, setEntriesLoading} = entrySlice.actions
 export default entrySlice.reducer
