@@ -7,6 +7,7 @@ const dotenv = require("dotenv")
 const database = require("./config/database")
 const clientRoutes = require("./routes/Client")
 const logsRoutes = require("./routes/Logs") 
+const engineerRoutes  = require("./routes/Engineer")
 
 dotenv.config()
 const PORT = process.env.PORT || 4000;
@@ -16,8 +17,8 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
     cors({
-        origin: "https://aeonlogs.vercel.app",
-        // origin: "http://localhost:3000",
+        // origin: "https://aeonlogs.vercel.app",
+        origin: "http://localhost:3000",
         credentials: true
     })
 )
@@ -29,6 +30,8 @@ database.connect()
 app.use("/api/v1/entry", entryRoutes)
 app.use("/api/v1/client", clientRoutes )
 app.use("/api/v1/logs", logsRoutes)
+app.use("/api/v1/engineer", engineerRoutes )
+
 
 app.get("/" , (req,res) => {
     return res.json({

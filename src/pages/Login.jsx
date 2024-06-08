@@ -1,12 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ACCOUNT_TYPE } from '../utils/constants'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { setEmployee } from '../slices/employeeSlice'
+import { fetchALLEngineers } from '../services/operations/engineerAPI'
 
 const Login = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [engineers, setEngineers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useState(() => {
+    async function fetchEngineers(){
+      setLoading(true)
+      const response = await fetchALLEngineers()
+      setEngineers(response)
+      setLoading(false)
+    } 
+    fetchEngineers()
+    
+}, [])
 
   const handleLogin = (name) =>{
     localStorage.setItem("employee", JSON.stringify(name))
@@ -27,7 +41,12 @@ const Login = () => {
         Amish
      </div>
      <div  onClick={() => handleLogin("Dakshata")} className='border-2 cursor-pointer border-white text-center text-lg w-full'>Dakshata</div>
-     <div  onClick={() => handleLogin("Kripashankar")} className='border-2 cursor-pointer border-white text-center text-lg w-full'>Kripashankar</div>
+      {
+        engineers?.map((engineer) => (
+          <div key={engineer._id}  onClick={() => handleLogin(engineer?.name)} className='border-2 cursor-pointer border-white text-center text-lg w-full'>{engineer?.name}</div>
+
+        ))
+      }
     </div>
     </div>
     

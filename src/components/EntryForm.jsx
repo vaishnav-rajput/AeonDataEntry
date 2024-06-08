@@ -3,14 +3,15 @@ import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { setNewEntryLoading, setEntriesLoading, setEditEntry, setEntry } from '../slices/entrySlice'
-import { addNewEntry, deleteEntry, updateEntry } from '../services/operations/entriesAPI'
+import { addNewEntry, deleteEntry, setTime, updateEntry } from '../services/operations/entriesAPI'
 import { getAllEntries } from '../services/operations/entriesAPI'
 import { formatDate } from '../services/formatDate'
 import { formatInvoice } from '../services/formatInvoice'
 import { fetchALLClients, getClientEntries } from '../services/operations/clientAPI'
 import { useDownloadExcel } from 'react-export-table-to-excel'
-import SearchClient from './SearchClient'
 import toast from 'react-hot-toast'
+import { fetchALLEngineers, getEngineerEntries } from '../services/operations/engineerAPI'
+import calculateTimeDifference from '../utils/calculateTimeDifference'
 
 
 const EntryForm = () => {
@@ -20,14 +21,19 @@ const EntryForm = () => {
     const {serial, entry, editEntry} = useSelector((state) => state.entry)
     const {employee} = useSelector((state) => state.employee)
     const [loading, setLoading] = useState(false)
-    const {entriesLoading} = useSelector((state)  => state.entry)
-    
     const [entries, setEntries] = useState([])
     const [newEntry, setNewEntry] = useState(false)
     const [deletedEntry, setDeletedEntry] = useState(false)
     const [clients, setClients] = useState([])
+    const [engineers, setEngineers] = useState([])
+    const [resetFilter, setResetFilter] = useState(false)
+    const [startTime, setStartTime] = useState(null)
+    const [endTime, setEndTime] = useState(null)
+    
+
     const curr = Date.now()
     const currDate = formatDate(curr)
+    
 
     useEffect(() => {
         
@@ -42,7 +48,7 @@ const EntryForm = () => {
          getEntries()
         dispatch(setEntriesLoading(false))
 
-    },[newEntry, deletedEntry, editEntry])
+    },[newEntry, deletedEntry, editEntry, resetFilter])
 
     useEffect(() => {
       
@@ -56,7 +62,20 @@ const EntryForm = () => {
             }
             setLoading(false)
         }
+
+        const getEngineers = async() => {
+            setLoading(true)
+            try {
+                const response = await fetchALLEngineers()
+                setEngineers(response)
+            } catch (error) {
+                console.log("Could not fetch Engineers", error)
+                
+            }
+            setLoading(false)
+        }
         getClients()
+        getEngineers()
     }, [])
 
     const {onDownload} = useDownloadExcel({
@@ -191,11 +210,56 @@ const EntryForm = () => {
         }
     }
 
+    const handleEngineerFilter = async (enginnerName) => {
+        try {
+            setEntriesLoading(true)
+            setLoading(true)
+            const response = await getEngineerEntries(enginnerName)
+            setLoading(false)
+            setEntriesLoading(false)
+            setEntries(response?.data?.data)
+
+
+        } catch (error) {
+            console.log("could not fetch engineer entries", error)
+        }
+    }
+
+    const handleFilterReset = () => {
+        setResetFilter(prev => !prev)
+    }
+
+    const handleStopTime = async(entryId) => {
+        setEndTime(new Date())
+        const response =  calculateTimeDifference(startTime, endTime)
+        function formatTime({ hours, minutes }) {
+            return `${hours} hrs ${minutes} minutes`;
+        }
+        console.log("time difference is " , response)
+        try {   
+        const formData = new FormData()
+        const formattedTime =  formatTime(response)
+        formData.append("time", formattedTime)
+        formData.append("entryId", entryId)
+        console.log("formData is ", formData)
+        var object = {};
+        formData.forEach((value, key) => object[key] = value);
+        console.log("formData when converted to object is is ", object)
+        const res = await setTime(object)
+
+    } catch (error) {
+        console.log("could not setTime", error)
+        }
+        dispatch(setEditEntry(false))
+
+    }
+
   return (
     <div>   
-        <div  className="ml-12  w-[95%] flex space-y-2 items-center m-x-6">
-            <label className="text-md text-richblack-5 pt-1 mr-2 " htmlFor='clientToFilter'>Filter Entries:</label>
+        <div  className="ml-12  w-[95%] flex space-y-2 space-x-3 items-center m-x-6">
+            <label className="text-md text-richblack-5 pt-1   " htmlFor='clientToFilter'>Filter Entries by Client : </label>
             <select 
+                id='clientToFilter'
                 className="form-style"
                 defaultValue=""
                 name='clientToFilter'
@@ -205,13 +269,39 @@ const EntryForm = () => {
                     {
                         !loading && clients.map((client, index) => (
                             
-                            <option onClick={handleFilter} key={index}  value={client?.name}>
+                            <option  key={index}  value={client?.name}>
                                 {client?.name}
                             </option>
                     
                         ))
                     }
             </select>
+            <label className="text-md text-richblack-5 pt-1 mr-2 " htmlFor='engineerToFilter'>Filter Entries by engineer : </label>
+            <select 
+                id='engineerToFilter'
+                className="form-style"
+                defaultValue=""
+                name='engineerToFilter'
+                {...register("engineerToFilter")}
+
+                onChange={(e) => handleEngineerFilter(e.target.value)}
+                >
+                    <option className='text-black' value="" >Choose a Engineer</option>
+                    {
+                        !loading && engineers.map((engineer, index) => (
+                            
+                            <option  key={index}  value={engineer?.name}>
+                                {engineer?.name}
+                            </option>
+                    
+                        ))
+                    }
+            </select>
+            <div>
+            <button onClick={handleFilterReset} className="bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-600 rounded hover:bg-gray-600   ">
+            Reset-Filter
+            </button>
+            </div>
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className='rounded-md  items-center justify-center flex border-richblack-700 gap-2  bg-richblack-800 p-x-6  pb-6 space-y-8'>
         {/* client */}
@@ -234,7 +324,7 @@ const EntryForm = () => {
                         ))
                     }
             </select>
-            {errors.courseCategory && (
+            {errors.client && (
                 <span>
                     Client is required
                 </span>
@@ -290,7 +380,7 @@ const EntryForm = () => {
             }
         </div>
         {/* assigned Engineer */}
-        <div  className="flex flex-col space-y-2">
+        {/* <div  className="flex flex-col space-y-2">
             <label className="text-sm text-richblack-5" htmlFor='assignedEngineer'>Assigned Engineer <sup>*</sup></label>
             <input 
                 id='assignedEngineer'
@@ -303,6 +393,33 @@ const EntryForm = () => {
                 errors.assignedEngineer && (
                     <span>please enter assigned engineer</span>
                 )
+            }
+        </div> */}
+        {/* client */}
+        
+        <div className="flex flex-col space-y-2 ">
+            <label className="text-sm text-richblack-5" htmlFor='assignedEngineer'>Assigned Engineer<sup>*</sup></label>
+            <select 
+                className="form-style w-full"
+                id='assignedEngineer'
+                defaultValue=""
+                {...register("assignedEngineer", {required: true})}
+                >
+                    <option className='text-black' value="" disabled>Choose a Engineer</option>
+                    {
+                        !loading && engineers.map((engineer, index) => (
+                            
+                            <option key={index} value={engineer?.name}>
+                                {engineer?.name}
+                            </option>
+                        ))
+                    }
+            </select>
+            {errors.assignedEngineer && (
+                <span>
+                    Engineer is required
+                </span>
+            )
             }
         </div>
         {/* type */}
@@ -363,9 +480,13 @@ const EntryForm = () => {
             <th className="px-4 py-2">Type</th>
             <th className="px-4 py-2">Status</th>
                 {
-                    employee == "Amish" && 
-                    <th className='px-4 py-2'>Actions</th>
+                    (employee === "Amish" || employee === "Dakshata") && 
+                    
+                    <th className='px-4 py-2'>{
+                        employee === "Amish" ? "Actions" : "Time"
+                    }</th>
                 }
+                
           </tr>
         </thead>
         <tbody>
@@ -394,6 +515,38 @@ const EntryForm = () => {
                                     edit
                                 </button>
                             </div>
+                           </td>
+                        }
+                        {
+                           ( entry?.status === "done" && entry?.time !== "") &&
+                            <td className="border px-4 py-2 w-[100px] text-xs flex gap-x-2 p-1 items-center justify-center">
+                                {
+                                     entry?.time
+
+                                }    
+                                
+                            
+                           </td>
+                        }
+                        {   
+                            (employee === "Dakshata" && entry?.status === "pending") &&
+                            <td className="border px-4 py-2 w-[100px] flex gap-x-2 p-1 items-center justify-center">
+                                
+                                {
+                                    !startTime && 
+                                    <button onClick={() => setStartTime(new Date())} className='rounded-md bg-yellow-800 text-white text-xs px-2 py-1 '>
+                                    Start Time
+                                    </button>
+                                }
+                                
+                                {
+                                    startTime && 
+                                    <button onClick={() => handleStopTime(entry._id)} className='rounded-md bg-yellow-800 text-white text-xs px-2 py-1'>
+                                    Stop Time
+                                    </button>
+                                }
+                                
+                            
                            </td>
                         }
                         

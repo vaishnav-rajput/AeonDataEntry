@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import AddClient from "./pages/AddClient";
 import ViewLogs from "./pages/ViewLogs"
 import PrivateAmishRoute from "./common/PrivateAmishRoute";
+import AddEngineer from "./pages/AddEngineer";
 
 function App() {
   const {employee} = useSelector((state) => state.employee)
@@ -19,6 +20,8 @@ function App() {
       </PrivateRoute>}/>
       <Route path="/login" element={<Login/>} />
       <Route path="/addClient" element={<AddClient/>} />
+      <Route path="/addEngineer" element={<AddEngineer/>}/>
+
       <Route path="/view-logs" element={<PrivateAmishRoute><ViewLogs/></PrivateAmishRoute>} />
     </Routes>
    </>

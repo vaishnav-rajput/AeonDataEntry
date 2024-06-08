@@ -185,3 +185,28 @@ exports.showAllEntries = async(req,res) =>{
         })
     }
 }
+
+exports.addTime = async(req, res) => {
+    try {
+        const {entryId, time} = req.body
+        const idInObjectForm =  new mongoose.Types.ObjectId(entryId);
+        const originalEntry = await Entry.findById(entryId)
+        const oldEntryObject = { ...originalEntry.toObject() };
+        
+        originalEntry.time = time
+        originalEntry.status = "done"
+
+        await originalEntry.save()
+        res.json({
+            success: true,
+            message: "Entry updated successfully",
+            data: oldEntryObject
+
+        })  
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}

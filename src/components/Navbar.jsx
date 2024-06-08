@@ -8,6 +8,10 @@ const Navbar = () => {
     const {employee} = useSelector((state) => state.employee)
     const dispatch = useDispatch()
     
+    const handleLogout = () => {
+        dispatch(setEmployee(null))
+        localStorage.setItem("employee", null)
+    }
 
   return (
     <div className='w-screen p-2 select-none'>
@@ -27,12 +31,16 @@ const Navbar = () => {
                             <li className='cursor-pointer'>AddClient</li>
 
                             </Link>
-                            <li onClick={() => dispatch(setEmployee(null))} className='p-2 rounded-sm cursor-pointer bg-blue-100 '>Logout</li>
+                            <Link to={"/addEngineer"}>
+                            <li className='cursor-pointer'>AddEngineer</li>
+
+                            </Link>
+                            <li onClick={handleLogout} className='p-2 rounded-sm cursor-pointer bg-blue-100 '>Logout</li>
                         </ul>
                         
                     ) : (
                     <ul>
-                        <li ><button onClick={() => dispatch(setEmployee(null))} className='p-2 rounded-sm bg-blue-100 '>Logout</button></li>
+                        <li ><button onClick={handleLogout} className='p-2 rounded-sm bg-blue-100 '>Logout</button></li>
                     </ul>
                 )
                 }

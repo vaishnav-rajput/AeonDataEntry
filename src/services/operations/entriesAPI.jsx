@@ -4,7 +4,7 @@ import { entryEndpoints } from "../apis";
 import { setEntriesLoading } from "../../slices/entrySlice";
 
 
-const {CREATEENTRY_API, EDITENTRY_API, GETALLENTRIES_API, DELETEENTRY_API} = entryEndpoints
+const {CREATEENTRY_API, SETTIME_API,EDITENTRY_API, GETALLENTRIES_API, DELETEENTRY_API} = entryEndpoints
 
 export const addNewEntry = async (data) => {
     let result = null
@@ -82,4 +82,22 @@ export const updateEntry = async(data) => {
     }
     toast.dismiss(toastId)
     return result
+}
+
+export const setTime = async(data) => {
+    let result = null
+    const toastId = toast.loading("loading...")
+    try {
+        const response = await apiConnector("POST", SETTIME_API, data )
+        console.log("edit entry api response ", response)
+        if(!response?.data?.success){
+            throw new Error("could not update entry")
+        }
+        toast.success("entry updated successfully")
+        result = response?.data?.data
+    } catch (error) {   
+        console.log("SET TIMe api error", error)
+        toast.error(error.message)
+    }
+    toast.dismiss(toastId)
 }
