@@ -3,7 +3,8 @@ const DeletedEntry = require("../models/DeletedEntry");
 
 const mongoose = require('mongoose');
 const EditedEntry = require("../models/EditedEntry");
-
+const mailSender = require("../utils/mailSender");
+const Client = require("../models/Client")
 
 exports.createEntry = async (req, res) =>{
     try {
@@ -186,27 +187,48 @@ exports.showAllEntries = async(req,res) =>{
     }
 }
 
-exports.addTime = async(req, res) => {
-    try {
-        const {entryId, time} = req.body
-        const idInObjectForm =  new mongoose.Types.ObjectId(entryId);
-        const originalEntry = await Entry.findById(entryId)
-        const oldEntryObject = { ...originalEntry.toObject() };
-        
-        originalEntry.time = time
-        originalEntry.status = "done"
+    exports.addTime = async(req, res) => {
+        try {
+            const {entryId, time} = req.body
+            const idInObjectForm =  new mongoose.Types.ObjectId(entryId);
+            const originalEntry = await Entry.findById(entryId)
+            const oldEntryObject = { ...originalEntry.toObject() };
+            
+            originalEntry.time = time
+            originalEntry.status = "done"
 
-        await originalEntry.save()
-        res.json({
-            success: true,
-            message: "Entry updated successfully",
-            data: oldEntryObject
 
-        })  
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        })
+            await originalEntry.save()
+            
+            const clientNa = originalEntry.client;
+            const tarClient = await Client.findOne({name: clientNa})
+            console.log("target client" , tarClient)
+            try {
+                const emailResponse = await mailSender(
+                    tarClient.email,
+                    `Issue resolved `,
+                    `Your ${originalEntry.issue}  was resolved in ${time}`
+                )
+
+            } catch (error) {
+                console.error("Error occurred while sending email:", error);
+			return res.status(500).json({
+				success: false,
+				message: "Error occurred while sending email",
+				error: error.message,
+			});
+            }
+            
+            res.json({
+                success: true,
+                message: "Entry updated successfully",
+                data: oldEntryObject
+
+            })  
+        } catch (error) {
+            return res.status(500).json({
+                success: false,
+                message: error.message
+            })
+        }
     }
-}

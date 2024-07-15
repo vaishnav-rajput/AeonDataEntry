@@ -4,13 +4,13 @@ const Entry = require("../models/Entry")
 
 exports.createClient = async (req, res) => {
     try{
-        const {name} = req.body;
-        if(name == ""){
+        const {clientName, clientEmail} = req.body;
+        if(clientName == ""){
             return res
                 .status(400)
                 .json({success: false, message: "all fields are mandatory"})
         }
-        const ClientDetails = await Client.create({name: name})
+        const ClientDetails = await Client.create({name: clientName, email: clientEmail})
         return res.status(200).json({
             success: true,
             message: "Client Created Successfully"

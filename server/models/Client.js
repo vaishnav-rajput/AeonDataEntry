@@ -11,6 +11,9 @@ const clientSchema = new mongoose.Schema({
             ref: "Entry"
         },
     ],
+    email: {
+        type: String,
+    }
 })
 
 module.exports = mongoose.model("Client", clientSchema)

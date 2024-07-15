@@ -29,11 +29,15 @@ const EntryForm = () => {
     const [resetFilter, setResetFilter] = useState(false)
     const [startTime, setStartTime] = useState(null)
     const [endTime, setEndTime] = useState(null)
+    const [status, setStatus] = useState("done")
     
 
     const curr = Date.now()
     const currDate = formatDate(curr)
     
+    const handleStatusChange = (e) => {
+        setStatus(e.target.value);
+    };
 
     useEffect(() => {
         
@@ -152,6 +156,7 @@ const EntryForm = () => {
         //  ,token})
          dispatch(setEntriesLoading(false))
          setNewEntry(true)
+         setStatus("done")
          reset()
         // const formData = new FormData()
         // formData.append("client", currentValues.client)
@@ -447,11 +452,27 @@ const EntryForm = () => {
             id='status'
             defaultValue=""
             {...register("status")}
+            onChange={handleStatusChange}
             >
                 <option className=' form-style' value="" disabled>Choose a Status</option>
                 <option className='form-style' >pending</option>
                 <option className='form-style'>done</option>                
             </select>
+            
+                {status === 'pending' && (
+                    <div className="flex flex-col space-y-2">
+                        <label className="text-sm text-richblack-5" htmlFor='comment'>comment</label>
+                        <input
+                            type="text"
+                            id='comment'
+                            className='text-white form-style'
+                            {...register("comment")}
+                            autoComplete='off'
+                        />
+                    </div>
+                )}
+               
+            
         </div>
         
         

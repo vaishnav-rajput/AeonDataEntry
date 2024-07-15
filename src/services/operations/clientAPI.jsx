@@ -21,10 +21,12 @@ export const fetchALLClients = async() => {
     return result
 }
 
-export const createClient = async(name, navigate) => {
+export const    createClient = async(data, navigate) => {
     const toastId = toast.loading("loading...")
     try {
-        const response = await apiConnector("POST", CREATECLIENT_API, {name})
+        const response = await apiConnector("POST", CREATECLIENT_API, data)
+    
+        console.log("the data is ", data)
         console.log("CREATE CLIENT API RES", response)
         if (!response?.data?.success) {
             throw new Error("Could Not create client")
